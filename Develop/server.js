@@ -1,4 +1,3 @@
-const fs = require('fs');
 const express = require('express');
 const path = require('path');
 const app = express();
@@ -8,9 +7,6 @@ const PORT = process.env.PORT || 3001;
 const { readFromFile, writeToFile, readAndAppend } = require('./helpers/fsutils');
 
 let parsedNotes;
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 // Static middleware pointing to the public folder
 app.use(express.static('public'));
@@ -48,19 +44,6 @@ app.post('/api/notes', async (req, res) => {
         text,
         note_id: uuid(),
       };
-
-      // await fs.readFile('./db/db.json', 'utf8', async (err, data) => {
-      //   if(err){
-      //     console.error(err);
-      //   }else{
-      //     parsedNotes = JSON.parse(data);
-
-      //     parsedNotes.push(newNote);
-
-      //     await fs.writeFile('./db/db.json', JSON.stringify(parsedNotes, null, 4),
-      //     (writeErr) => writeErr ? console.log(writeErr) : console.log('Successfully updated notes.'));
-      //   };
-      // });
   
       const response = {
         status: 'success',
@@ -69,7 +52,7 @@ app.post('/api/notes', async (req, res) => {
   
       console.log(response);
       res.status(201).json(response);
-    }else{
+    } else {
       res.status(500).json('Error in saving note');
     }
   });
