@@ -5,6 +5,9 @@ const app = express();
 const uuid = require('./helpers/uuid');
 const db = require('./db/db.json');
 const PORT = process.env.PORT || 3001;
+const { readFromFile, writeToFile, readAndAppend } = require('./helpers/fsutils');
+
+let parsedNotes;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -23,19 +26,22 @@ app.get('/notes', (req, res) =>
 );
 
 // GET request
-app.get('/api/notes', (req, res) => res.json(db));
+app.get('/api/notes', async (req, res) => {
+  const dbData = await readFromFile('./db/db.json');
+  const parsedData = await JSON.parse(dbData);
+  res.json(parsedData);
+});
 
 // POST request
-app.post('/api/notes', (req, res) => {
+app.post('/api/notes', async (req, res) => {
     // Log that a POST request was received
     console.info(`${req.method} request received to add a note`);
   
     // Destructuring assignment for the items in req.body
-    console.log(req.body);
     const { title, text } = req.body;
   
     // If all the required properties are present
-    if (req.body.title && req.body.text) {
+    if (title && text) {
       // Variable for the object we will save
       const newNote = {
         title,
@@ -43,22 +49,22 @@ app.post('/api/notes', (req, res) => {
         note_id: uuid(),
       };
 
-      fs.readFile('./db/db.json', 'utf8', (err, data) => {
-        if(err){
-          console.error(err);
-        }else{
-          const parsedNotes = JSON.parse(data);
+      // await fs.readFile('./db/db.json', 'utf8', async (err, data) => {
+      //   if(err){
+      //     console.error(err);
+      //   }else{
+      //     parsedNotes = JSON.parse(data);
 
-          parsedNotes.push(newNote);
+      //     parsedNotes.push(newNote);
 
-          fs.writeFile('./db/db.json', JSON.stringify(parsedNotes, null, 4),
-          (writeErr) => writeErr ? console.log(writeErr) : console.log('Successfully updated notes.'));
-        };
-      });
+      //     await fs.writeFile('./db/db.json', JSON.stringify(parsedNotes, null, 4),
+      //     (writeErr) => writeErr ? console.log(writeErr) : console.log('Successfully updated notes.'));
+      //   };
+      // });
   
       const response = {
         status: 'success',
-        body: newNote,
+        body: parsedNotes,
       };
   
       console.log(response);

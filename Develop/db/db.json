@@ -16,5 +16,20 @@
         "title": "Here's a title",
         "text": "Here is some text for the note",
         "note_id": "5251"
+    },
+    {
+        "title": "This is my note title",
+        "text": "Here is some text that I want to save in my new note.",
+        "note_id": "bf7e"
+    },
+    {
+        "title": "New note",
+        "text": "Note text",
+        "note_id": "2c80"
+    },
+    {
+        "title": "New new note",
+        "text": "text",
+        "note_id": "5164"
     }
 ]
