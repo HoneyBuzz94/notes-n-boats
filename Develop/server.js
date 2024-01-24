@@ -1,63 +1,57 @@
 const express = require('express');
 const path = require('path');
-const app = express();
+const fs = require('fs').promises;
 const uuid = require('./helpers/uuid');
 const db = require('./db/db.json');
-const PORT = process.env.PORT || 3001;
-const { readFromFile, writeToFile, readAndAppend } = require('./helpers/fsutils');
+const PORT = 3001;
 
-let parsedNotes;
+const app = express();
 
-// Static middleware pointing to the public folder
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.use(express.static('public'));
 
-// Route to homepage
-app.get('/', (req, res) =>
-  res.sendFile(path.join(__dirname, '/public/index.html'))
-);
-
-// Route to notes page
-app.get('/notes', (req, res) =>
-  res.sendFile(path.join(__dirname, '/public/notes.html'))
-);
-
-// GET request
-app.get('/api/notes', async (req, res) => {
-  const dbData = await readFromFile('./db/db.json');
-  const parsedData = await JSON.parse(dbData);
-  res.json(parsedData);
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, './public/index.html'));
 });
 
-// POST request
+app.get('/notes', (req, res) => {
+  res.sendFile(path.join(__dirname, './public/notes.html'));
+});
+
+app.get('/api/notes', (req, res) => res.json(db));
+
 app.post('/api/notes', async (req, res) => {
-    // Log that a POST request was received
-    console.info(`${req.method} request received to add a note`);
-  
-    // Destructuring assignment for the items in req.body
-    const { title, text } = req.body;
-  
-    // If all the required properties are present
-    if (title && text) {
-      // Variable for the object we will save
-      const newNote = {
-        title,
-        text,
-        note_id: uuid(),
-      };
-  
+  const { title, text } = req.body;
+
+  if(title && text){
+    const newNote = {
+      title,
+      text,
+      note_id: uuid()
+    };
+
+    try{
+      const dbData = await fs.readFile('./db/db.json', 'utf-8');
+      const noteArray = JSON.parse(dbData);
+
+      noteArray.push(newNote);
+      await fs.writeFile('./db/db.json', JSON.stringify(noteArray), 'utf-8');
+
       const response = {
         status: 'success',
-        body: parsedNotes,
+        body: newNote
       };
   
       console.log(response);
       res.status(201).json(response);
-    } else {
-      res.status(500).json('Error in saving note');
-    }
-  });
+    }catch{
+      res.status(500).json('Error');
+    };
+  }
+});
 
-// Listen at specified port
-app.listen(PORT, () =>
-  console.log(`Listening at http://localhost:${PORT}`)
-);
+app.listen(PORT, () => {
+  console.log(`Listening at http://localhost:${PORT}`);
+});
