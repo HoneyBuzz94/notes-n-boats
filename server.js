@@ -1,8 +1,9 @@
 const express = require('express');
 const path = require('path');
-const fs = require('fs').promises;
+const fs = require('fs');
 const uuid = require('./helpers/uuid');
 const db = require('./db/db.json');
+const { readFileSync } = require('fs');
 const PORT = process.env.PORT || 3001;
 
 const app = express();
@@ -20,7 +21,11 @@ app.get('/notes', (req, res) => {
   res.sendFile(path.join(__dirname, './public/notes.html'));
 });
 
-app.get('/api/notes', (req, res) => res.json(db));
+app.get('/api/notes', async (req, res) => {
+  const noteData = JSON.parse(fs.readFileSync('db/db.json', 'utf-8'));
+  console.log(noteData);
+  res.json(noteData);
+});
 
 app.post('/api/notes', async (req, res) => {
   const { title, text } = req.body;
@@ -33,11 +38,11 @@ app.post('/api/notes', async (req, res) => {
     };
 
     try{
-      const dbData = await fs.readFile('./db/db.json', 'utf-8');
+      const dbData = fs.readFileSync('./db/db.json', 'utf-8');
       const noteArray = JSON.parse(dbData);
 
       noteArray.push(newNote);
-      await fs.writeFile('./db/db.json', JSON.stringify(noteArray), 'utf-8');
+      fs.writeFileSync('./db/db.json', JSON.stringify(noteArray), 'utf-8');
 
       const response = {
         status: 'success',
