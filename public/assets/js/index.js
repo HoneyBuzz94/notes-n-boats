@@ -54,6 +54,7 @@ const deleteNote = (id) =>
   });
 
 const renderActiveNote = () => {
+  console.log(activeNote);
   hide(saveNoteBtn);
   hide(clearBtn);
 
@@ -182,7 +183,7 @@ const renderNoteList = async (notes) => {
 };
 
 // Gets notes from the db and renders them to the sidebar
-const getAndRenderNotes = () => getNotes().then(renderNoteList);
+const getAndRenderNotes = async () => getNotes().then(renderNoteList);
 
 if (window.location.pathname === '/notes') {
   saveNoteBtn.addEventListener('click', handleNoteSave);

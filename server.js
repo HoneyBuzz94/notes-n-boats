@@ -22,8 +22,7 @@ app.get('/notes', (req, res) => {
 });
 
 app.get('/api/notes', async (req, res) => {
-  const noteData = JSON.parse(fs.readFileSync('db/db.json', 'utf-8'));
-  console.log(noteData);
+  const noteData = JSON.parse(readFileSync('db/db.json', 'utf-8'));
   res.json(noteData);
 });
 
@@ -34,11 +33,11 @@ app.post('/api/notes', async (req, res) => {
     const newNote = {
       title,
       text,
-      note_id: uuid()
+      id: uuid()
     };
 
     try{
-      const dbData = fs.readFileSync('./db/db.json', 'utf-8');
+      const dbData = readFileSync('./db/db.json', 'utf-8');
       const noteArray = JSON.parse(dbData);
 
       noteArray.push(newNote);
